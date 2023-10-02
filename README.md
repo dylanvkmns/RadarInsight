@@ -26,12 +26,12 @@ This project retrieves data from SASS-C radars, stores it in a dedicated databas
 1.  Clone the repository:
     
 
--   `git clone https://github.com/your-username/SASS-C-Radar-Tool.git` 
+-   `git clone https://github.com/dylanvkmns/RadarInsight.git` 
     
 -   Navigate to the project directory:
 
     
--   `cd SASS-C-Radar-Tool` 
+-   `cd RadarInsight` 
     
 -   Install the required packages:
 
@@ -48,13 +48,13 @@ pip install -r requirements.txt
     
 -   Start the server:
 
-1.  `python runDahs.py` 
+1.  `python runDash.py` 
     
 2.  Open your browser and go to `http://127.0.0.1:8050/` to access the visualization tool.
 
 ## Contributing
 
-Contributions are always welcome! Please read our [contributing guidelines](https://chat.openai.com/c/CONTRIBUTING.md) to get started.
+Contributions are always welcome! Please read our [contributing guidelines](CONTRIBUTING.md) to get started.
 
 ## License
 
