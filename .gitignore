@@ -1,0 +1,67 @@
+config.ini
+
+# Byte-compiled / optimized Python files
+__pycache__/
+*.pyc
+*.pyo
+__pycache__
+
+# Virtual environments (e.g., virtualenv, pipenv, poetry)
+venv/
+env/
+.venv/
+.Python
+.venv3/
+.poetry/
+.pyenv/
+.Python3.*/
+
+# IDE and editor files (e.g., VSCode, PyCharm, Jupyter)
+.vscode/
+.idea/
+*.sublime-*
+*.swp
+*.swo
+*.tmproj
+*.tmproj.lock
+.idea
+
+# Environment configuration
+.env
+.env.*
+.env.local
+.env.development
+.env.test
+.env.prod
+.env.*.local
+*.env
+
+# Local development settings (e.g., database, secret keys)
+*.sqlite3
+*.db
+*.log
+
+# Compiled Python files
+*.pyc
+*.pyo
+
+# Dependency directories
+lib/
+libs/
+lib64/
+build/
+dist/
+egg-info/
+node_modules/
+
+# Distribution/installation directory
+bin/
+include/
+lib/
+lib64/
+man/
+share/
+Python.framework/
+pyvenv.cfg
+.pipenv
+pipfile.lock
