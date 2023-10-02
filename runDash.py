@@ -105,7 +105,7 @@ def update_probability_figure(selected_radar):
 
     return {
         'data': [go.Scatter(x=dates, y=[entry[i+2] for entry in data], mode='lines+markers', name=label) for i, label in enumerate(labels)],
-        'layout': go.Layout(title=f"Probability for {selected_radar}")
+        'layout': go.Layout(title=f"Probability for {selected_radar}", yaxis=dict(range=[0, 100]))
     }
 
 @app.callback(Output('comparison-graph', 'figure'),
