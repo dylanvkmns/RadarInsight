@@ -14,63 +14,55 @@ mysql_password = config['Credentials']['mysql_password']
 
 # Provided SQL queries
 biases_query = """
-    SELECT LE_DS.DS_NAME "Radar Name", AN_RADAR_BIASES.RADAR_MODE "Antenna Type",
-    CASE WHEN TIME_OFFSET_CALC_S IS NULL THEN -1 ELSE ROUND(TIME_OFFSET_CALC_S, 5) END "Time Bias",
-    CASE WHEN AN_RADAR_BIASES.RANGE_BIAS_CALC_M IS NULL THEN -1 ELSE ROUND(AN_RADAR_BIASES.RANGE_BIAS_CALC_M, 5) END "Range Bias",
-    CASE WHEN AN_RADAR_BIASES.RANGE_GAIN_CALC IS NULL THEN -1 ELSE ROUND((AN_RADAR_BIASES.RANGE_GAIN_CALC - 1) * 1852, 5) END "Range Gain",
-    CASE WHEN AN_RADAR_BIASES.AZIMUTH_BIAS_CALC_DEG IS NULL THEN -1 ELSE ROUND(AN_RADAR_BIASES.AZIMUTH_BIAS_CALC_DEG, 5) END "Azimuth Bias",
-    CASE WHEN AN_RADAR_NOISES.RANGE_ERROR_SD_CALC_M IS NULL THEN -1 ELSE ROUND(AN_RADAR_NOISES.RANGE_ERROR_SD_CALC_M, 5) END "Range Noise",
-    CASE WHEN AZIMUTH_ERROR_SD_CALC_DEG IS NULL THEN -1 ELSE ROUND(AZIMUTH_ERROR_SD_CALC_DEG, 5) END "Azimuth Noise",
-    CASE WHEN AN_RADAR_BIASES.ECC_VALUE_CALC_DEG IS NULL THEN -1 ELSE ROUND(AN_RADAR_BIASES.ECC_VALUE_CALC_DEG, 5) END "Ecc Value",
-    CASE WHEN AN_RADAR_BIASES.ECC_ANGLE_CALC_DEG IS NULL THEN -1 ELSE ROUND(AN_RADAR_BIASES.ECC_ANGLE_CALC_DEG, 5) END "Ecc Angle"
-    FROM AN_RADAR_BIASES
-    LEFT JOIN AN_RADAR_NOISES
-    ON (
-        AN_RADAR_NOISES.DS_ID = AN_RADAR_BIASES.DS_ID  AND
-        AN_RADAR_NOISES.RADAR_MODE = AN_RADAR_BIASES.RADAR_MODE  AND
-        AN_RADAR_NOISES.ACTION_ID = AN_RADAR_BIASES.ACTION_ID)
-    INNER JOIN LE_DS
-    ON (AN_RADAR_BIASES.DS_ID=LE_DS.DS_ID)
-    WHERE
-    AN_RADAR_BIASES.ACTION_ID=2;
+    SELECT
+        d.DS_NAME AS "Radar Name",
+        b.RADAR_MODE AS "Antenna Type",
+        ROUND(COALESCE(b.TIME_OFFSET_CALC_S, -1), 5) AS "Time Bias",
+        ROUND(COALESCE(b.RANGE_BIAS_CALC_M, -1), 5) AS "Range Bias",
+        ROUND(COALESCE((b.RANGE_GAIN_CALC - 1) * 1852, -1), 5) AS "Range Gain",
+        ROUND(COALESCE(b.AZIMUTH_BIAS_CALC_DEG, -1), 5) AS "Azimuth Bias",
+        ROUND(COALESCE(n.RANGE_ERROR_SD_CALC_M, -1), 5) AS "Range Noise",
+        ROUND(COALESCE(n.AZIMUTH_ERROR_SD_CALC_DEG, -1), 5) AS "Azimuth Noise",
+        ROUND(COALESCE(b.ECC_VALUE_CALC_DEG, -1), 5) AS "Ecc Value",
+        ROUND(COALESCE(b.ECC_ANGLE_CALC_DEG, -1), 5) AS "Ecc Angle"
+    FROM AN_RADAR_BIASES b
+    LEFT JOIN AN_RADAR_NOISES n 
+        ON  b.DS_ID = n.DS_ID
+        AND b.RADAR_MODE = n.RADAR_MODE
+        AND b.ACTION_ID = n.ACTION_ID
+    INNER JOIN LE_DS d ON b.DS_ID = d.DS_ID
+    WHERE b.ACTION_ID = 2;
+
     """
 
 detection_rate_query = """
-    SELECT 
-        LE_DS.DS_NAME ds_name, 
-        ds_radar.radar_type_id ds_type,
-        COUNT(CASE WHEN detection_P IN (1) THEN 1 ELSE NULL END) /
-        COUNT(CASE WHEN detection_P IN (0, 1) THEN 1 ELSE NULL END) * 100 pdP,
-        COUNT(CASE WHEN detection_S IN (1) THEN 1 ELSE NULL END) /
-        COUNT(CASE WHEN detection_S IN (0, 1) THEN 1 ELSE NULL END) * 100 pdS,
-        COUNT(CASE WHEN detection_M IN (1) THEN 1 ELSE NULL END) /
-        COUNT(CASE WHEN detection_M IN (0, 1) THEN 1 ELSE NULL END) * 100 pdM,
-        COUNT(CASE WHEN detection_PS IN (1) THEN 1 ELSE NULL END) /
-        COUNT(CASE WHEN detection_PS IN (0, 1) THEN 1 ELSE NULL END) * 100 pdPS,
-        COUNT(CASE WHEN detection_PM IN (1) THEN 1 ELSE NULL END) /
-        COUNT(CASE WHEN detection_PM IN (0, 1) THEN 1 ELSE NULL END) * 100 pdPM 
-    FROM (
-        (
-            (
-                an_tr_rt_associations
-                JOIN
-                an_actions_otr
-                ON an_actions_otr.action_id=2 AND
-                an_tr_rt_associations.ds_id=an_actions_otr.ds_id 
-            ) 
-            JOIN 
-            sd_radar 
-            ON an_tr_rt_associations.REC_NUM=sd_radar.REC_NUM 
-        ) 
-        JOIN 
-        le_ds 
-        ON sd_radar.ds_id=le_ds.ds_id
-    )
+        SELECT
+        d.DS_NAME AS ds_name,
+        r.radar_type_id AS ds_type,
+        COUNT(CASE WHEN tra.detection_P = 1 THEN 1 ELSE NULL END) /
+        COUNT(CASE WHEN tra.detection_P IN (0, 1) THEN 1 ELSE NULL END) * 100 AS pdP,
+        COUNT(CASE WHEN tra.detection_S = 1 THEN 1 ELSE NULL END) /
+        COUNT(CASE WHEN tra.detection_S IN (0, 1) THEN 1 ELSE NULL END) * 100 AS pdS,
+        COUNT(CASE WHEN tra.detection_M = 1 THEN 1 ELSE NULL END) /
+        COUNT(CASE WHEN tra.detection_M IN (0, 1) THEN 1 ELSE NULL END) * 100 AS pdM,
+        COUNT(CASE WHEN tra.detection_PS = 1 THEN 1 ELSE NULL END) /
+        COUNT(CASE WHEN tra.detection_PS IN (0, 1) THEN 1 ELSE NULL END) * 100 AS pdPS,
+        COUNT(CASE WHEN tra.detection_PM = 1 THEN 1 ELSE NULL END) /
+        COUNT(CASE WHEN tra.detection_PM IN (0, 1) THEN 1 ELSE NULL END) * 100 AS pdPM
+    FROM
+        an_tr_rt_associations tra
     JOIN
-    ds_radar
-    ON sd_radar.ds_id=ds_radar.ds_id
-    GROUP BY le_ds.ds_name
-    ORDER BY le_ds.ds_name;
+        an_actions_otr a ON tra.ds_id = a.ds_id AND a.action_id = 2
+    JOIN
+        sd_radar s ON tra.REC_NUM = s.REC_NUM
+    JOIN
+        le_ds d ON s.ds_id = d.ds_id
+    JOIN
+        ds_radar r ON s.ds_id = r.ds_id
+    GROUP BY
+        d.DS_NAME
+    ORDER BY
+        d.DS_NAME;
     """
 
 # Connect to the remote MariaDB server
