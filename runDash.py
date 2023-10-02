@@ -39,7 +39,8 @@ html.H1("Radar Statistics", style={'textAlign': 'center', 'paddingTop': '20px', 
     dcc.Tabs(id="tabs", value='tab-1', children=[
         dcc.Tab(label='Bias', value='tab-1'),
         dcc.Tab(label='Probability', value='tab-2'),
-        dcc.Tab(label='Comparison', value='tab-3')
+        dcc.Tab(label='Comparison', value='tab-3'),
+        dcc.Tab(label='Overview', value='tab-4')
     ]),
     html.Div(id='tabs-content')
 ])
@@ -62,6 +63,9 @@ def render_content(tab):
             dcc.Dropdown(id='stat-dropdown', options=get_all_stats()),
             dcc.Graph(id='comparison-graph')
         ])
+    elif tab == 'tab-4':
+        return html.Div(id='overview-content')
+
 
 # Callbacks for graphs and other components:
 
@@ -137,5 +141,48 @@ def update_comparison_figure(selected_stat):
     }
 
 
+@app.callback(Output('overview-content', 'children'),
+              [Input('tabs', 'value')])
+def update_overview_figure(tab):
+    if tab != 'tab-4':
+        raise dash.exceptions.PreventUpdate
+
+    conn = sqlite3.connect("rqmData.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT DISTINCT Radar_Name FROM biases")
+    radars = [radar[0] for radar in cursor.fetchall()]
+
+    radar_graphs = []
+    for idx, radar in enumerate(radars):
+        cursor.execute(f"SELECT * FROM detection_rates WHERE ds_name=?", (radar,))
+        radar_data = cursor.fetchall()
+
+        if radar_data:
+            labels = [desc[0] for desc in cursor.description][2:-1]
+            dates = [entry[-1] for entry in radar_data]
+            traces = [go.Scatter(x=dates, y=[entry[i + 2] for entry in radar_data], mode='lines+markers', name=label)
+                      for i, label in enumerate(labels)]
+
+            radar_graph = html.Div(
+                dcc.Graph(
+                    id=f'overview-{radar}',
+                    figure={
+                        'data': traces,
+                        'layout': go.Layout(title=f"{radar}'s Stats")
+                    }
+                ),
+                style={'width': '50%', 'display': 'inline-block'}
+                # Adjust the width to slightly less than 50% to account for padding/margins
+            )
+            radar_graphs.append(radar_graph)
+
+            # If index is odd (second graph in the pair), or it's the last graph, wrap the graphs in a row
+            if idx % 2 == 1 or idx == len(radars) - 1:
+                radar_graphs[-2:] = [html.Div(radar_graphs[-2:], style={'width': '100%', 'display': 'inline-block'})]
+
+    conn.close()
+    return radar_graphs
+
+
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=8051)
