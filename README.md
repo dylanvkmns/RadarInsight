@@ -28,7 +28,7 @@ Prerequisites
     Ensure you have Python (version 3.9 or later) installed.
     Other dependencies are listed in the requirements.txt.
 
-Steps
+    Steps
 
     Clone the repository:
 
