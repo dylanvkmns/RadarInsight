@@ -18,10 +18,10 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
-          - centos-s-1vcpu-512mb-10gb-sfo3-01
+          #- ubuntu-latest
+          #- macos-latest
+          #- windows-latest
+          - self-hosted 
         python-version:
           - "3.6.8"
           #- "3.8"
