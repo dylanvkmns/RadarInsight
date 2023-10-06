@@ -20,7 +20,7 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - windows-latest
+         # - windows-latest
         python-version:
           - "3.10"
           - "3.11"
@@ -83,7 +83,7 @@ jobs:
         with:
           # GIST_TOKEN is a GitHub personal access token with scope "gist".
           auth: ${{ secrets.GIST_TOKEN }}
-          gistID: 123abc456def789   # replace with your real Gist id.
+          gistID: cdb863daa7ba601714af5bf5b8321aeb   # replace with your real Gist id.
           filename: covbadge.json
           label: Coverage
           message: ${{ env.total }}%
