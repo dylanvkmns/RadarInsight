@@ -23,10 +23,10 @@ jobs:
           - macos-latest
           - windows-latest
         python-version:
-          - "3.7"
-          - "3.8"
-          - "3.9"
+          - "3.11"
           - "3.10"
+          - "3.11"
+          - "3.12"
 
     steps:
       - name: "Check out the repo"
@@ -56,9 +56,6 @@ jobs:
     needs: tests
     runs-on: ubuntu-latest
     steps:
-      - name: Debug - List directory contents
-        run: ls -la /Users/runner/work/RadarInsight/RadarInsight/app/
-
       - name: "Check out the repo"
         uses: "actions/checkout@v2"
 
