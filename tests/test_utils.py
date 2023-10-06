@@ -1,5 +1,4 @@
-import utils
-from utils import validate_date
+from app.utils import validate_date
 
 def test_validate_date():
     assert validate_date("01/10/2023") == True
