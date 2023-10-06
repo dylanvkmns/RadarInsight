@@ -1,3 +1,4 @@
+![Coverage Badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/dylanvkmns/123abc456def789/raw/covbadge.json)
 # SASS-C Radar Data Visualization Documentation
 ## Table of Contents
 
