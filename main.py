@@ -2,6 +2,7 @@ import mysql.connector
 import sqlite3
 from datetime import datetime
 import configparser
+from utils import validate_date
 
 # Create a ConfigParser object and read the config file
 config = configparser.ConfigParser()
@@ -89,9 +90,9 @@ try:
             # Prompt the user for the date of the job in "dd/mm/yyyy" format
             job_date_str = input(f"Enter the date for job '{database}' (dd/mm/yyyy): ")
 
-            try:
-                # Parse the input date string into a datetime object
+            if validate_date(job_date_str):
                 job_date = datetime.strptime(job_date_str, "%d/%m/%Y")
+                job_date_formatted = job_date.strftime("%d/%m/%Y")
 
                 # Format the datetime object as a string in the desired format (dd/mm/yyyy)
                 job_date_formatted = job_date.strftime("%d/%m/%Y")
@@ -156,7 +157,8 @@ try:
                         (ds_name, ds_type, pdP, pdS, pdM, pdPS, pdPM, job_date_formatted)
                     )
 
-            except ValueError:
+            else:
+
                 print(f"Invalid date format. Please enter the date in 'dd/mm/yyyy' format (e.g., '01/01/2023').")
 
     # Commit the changes to the SQLite database
