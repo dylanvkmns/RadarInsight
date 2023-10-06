@@ -1,58 +1,58 @@
 # SASS-C Radar Data Visualization Documentation
 ## Table of Contents
 
-    Overview
-    Features
-    Installation
-    Usage
-    Understanding the Queries
-    Frequently Asked Questions (FAQs)
-    Known Issues
-    Contributing
-    License
-    Feedback and Support
+1. [Overview](#Overview)
+2. Features
+3. Installation
+4. Usage
+5. Understanding the Queries
+6. Frequently Asked Questions (FAQs)
+7. Known Issues
+8. Contributing
+9. License
+10. Feedback and Support
 
 ## 1. Overview
 
 This project retrieves data from SASS-C radars, stores it in a dedicated database, and provides an intuitive visualization interface to monitor and analyze the performance of the radar. Developed using Python, it offers insights not only into real-time performance but also historical data.
 ## 2. Features
 
-    Data Retrieval: Seamlessly fetch data from SASS-C radars.
-    Database Storage: Store radar performance data efficiently in our custom database.
-    Data Visualization: Interactive visualizations to depict real-time and historical radar performance.
-    Historical Analysis: Dive deep into past data to identify patterns, anomalies, or areas of improvement.
+Data Retrieval: Seamlessly fetch data from SASS-C radars.
+Database Storage: Store radar performance data efficiently in our custom database.
+Data Visualization: Interactive visualizations to depict real-time and historical radar performance.
+Historical Analysis: Dive deep into past data to identify patterns, anomalies, or areas of improvement.
 
 ## 3. Installation
 Prerequisites
 
-    Ensure you have Python (version 3.9 or later) installed.
-    Other dependencies are listed in the requirements.txt.
+Ensure you have Python (version 3.9 or later) installed.
+Other dependencies are listed in the requirements.txt.
 
-    Steps
+Steps
 
-    Clone the repository:
+Clone the repository:
 
 `git clone https://github.com/dylanvkmns/RadarInsight.git`
 
-    Navigate to the project directory:
+Navigate to the project directory:
 
 `cd RadarInsight`
 
-    Install the required packages:
+Install the required packages:
 
 `pip install -r requirements.txt`
 
 4. Usage
 
-    Run migrations to set up the database:
+Run migrations to set up the database:
 
 `python manage.py migrate`
 
-    Start the server:
+Start the server:
 
 `python runDash.py`
 
-    Open your browser and navigate to:
+Open your browser and navigate to:
 
 `http://127.0.0.1:8050/`
 
@@ -62,11 +62,11 @@ This will access the visualization tool.
 The SQL queries embedded within the tool serve the purpose of extracting specific radar data elements necessary for accurate visualization. Users do not need to modify these unless they have specific additional requirements.
 ## 6. Frequently Asked Questions (FAQs)
 
-    Q: I'm getting a date format error. What should I do?
-        A: Ensure you're inputting the date in the "dd/mm/yyyy" format, like "01/10/2023". The tool will prompt you again for the correct format if entered incorrectly.
+Q: I'm getting a date format error. What should I do?
+    A: Ensure you're inputting the date in the "dd/mm/yyyy" format, like "01/10/2023". The tool will prompt you again for the correct format if entered incorrectly.
 
-    Q: I'm facing an "Invalid value 'AUTOCOMMIT' for isolation_level" error. What should I do?
-        A: Make sure you're using a compatible version of SQLAlchemy and that your database supports the AUTOCOMMIT isolation level.
+Q: I'm facing an "Invalid value 'AUTOCOMMIT' for isolation_level" error. What should I do?
+    A: Make sure you're using a compatible version of SQLAlchemy and that your database supports the AUTOCOMMIT isolation level.
 
 ## 7. Known Issues
 
