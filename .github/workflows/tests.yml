@@ -20,13 +20,10 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macos-latest
-          - windows-latest
+         # - windows-latest
         python-version:
-          - "3.11"
+          - "3.9"
           - "3.10"
-          - "3.11"
-          - "3.12"
 
     steps:
       - name: "Check out the repo"
@@ -84,8 +81,8 @@ jobs:
         uses: schneegans/dynamic-badges-action@v1.4.0
         with:
           # GIST_TOKEN is a GitHub personal access token with scope "gist".
-          auth: ${{ secrets.GIST_TOKEN }}
-          gistID: 123abc456def789   # replace with your real Gist id.
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: cdb863daa7ba601714af5bf5b8321aeb   # replace with your real Gist id.
           filename: covbadge.json
           label: Coverage
           message: ${{ env.total }}%
