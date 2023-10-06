@@ -67,11 +67,9 @@ detection_rate_query = """
     """
 
 # Connect to the remote MariaDB server
-mysql_connection = mysql.connector.connect(
-    host=mysql_host,
-    user=mysql_user,
-    password=mysql_password
-)
+mysql_connection = mysql.connector.connect(host=mysql_host,
+                                           user=mysql_user,
+                                           password=mysql_password)
 
 # Create an SQLite database and connect to it
 sqlite_connection = sqlite3.connect('rqmData.db')
@@ -84,11 +82,14 @@ try:
 
         # Find databases that begin with "job_verifsassuser_"
         mysql_cursor.execute("SHOW DATABASES LIKE 'job_verifsassuser_%'")
-        databases_to_query = [database[0] for database in mysql_cursor.fetchall()]
+        databases_to_query = [
+            database[0] for database in mysql_cursor.fetchall()
+        ]
 
         for database in databases_to_query:
             # Prompt the user for the date of the job in "dd/mm/yyyy" format
-            job_date_str = input(f"Enter the date for job '{database}' (dd/mm/yyyy): ")
+            job_date_str = input(
+                f"Enter the date for job '{database}' (dd/mm/yyyy): ")
 
             if validate_date(job_date_str):
                 job_date = datetime.strptime(job_date_str, "%d/%m/%Y")
@@ -113,7 +114,8 @@ try:
                 )''')
 
                 # Create the "detection_rates" table if it doesn't exist
-                sqlite_cursor.execute('''CREATE TABLE IF NOT EXISTS detection_rates (
+                sqlite_cursor.execute(
+                    '''CREATE TABLE IF NOT EXISTS detection_rates (
                     ds_name TEXT,
                     ds_type INT,
                     pdP REAL,
@@ -134,8 +136,7 @@ try:
                     # Insert data with column names explicitly listed
                     sqlite_cursor.execute(
                         "INSERT INTO biases (Radar_Name, Antenna_Type, Time_Bias, Range_Bias, Range_Gain, Azimuth_Bias, Range_Noise, Azimuth_Noise, Ecc_Value, Ecc_Angle, Job_Date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        (row + (job_date_formatted,))
-                    )
+                        (row + (job_date_formatted, )))
 
                 # Execute the detection_rate_query
                 mysql_cursor.execute(detection_rate_query)
@@ -154,12 +155,14 @@ try:
 
                     sqlite_cursor.execute(
                         "INSERT INTO detection_rates (ds_name, ds_type, pdP, pdS, pdM, pdPS, pdPM, Job_Date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                        (ds_name, ds_type, pdP, pdS, pdM, pdPS, pdPM, job_date_formatted)
-                    )
+                        (ds_name, ds_type, pdP, pdS, pdM, pdPS, pdPM,
+                         job_date_formatted))
 
             else:
 
-                print(f"Invalid date format. Please enter the date in 'dd/mm/yyyy' format (e.g., '01/01/2023').")
+                print(
+                    "Invalid date format. Please enter the date in 'dd/mm/yyyy' format (e.g., '01/01/2023')."
+                )
 
     # Commit the changes to the SQLite database
     sqlite_connection.commit()
