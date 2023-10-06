@@ -56,9 +56,6 @@ jobs:
     needs: tests
     runs-on: ubuntu-latest
     steps:
-      - name: Debug - List directory contents
-        run: ls -la /Users/runner/work/RadarInsight/RadarInsight/app/
-
       - name: "Check out the repo"
         uses: "actions/checkout@v2"
 
