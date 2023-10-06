@@ -49,7 +49,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: covdata
-          path: .coverage.*
+          path: tests/coverage.json
 
   coverage:
     name: Coverage
@@ -76,7 +76,7 @@ jobs:
       - name: "Combine"
         run: |
           python -m tox -e coverage
-          export TOTAL=$(python -c "import json;print(json.load(open('coverage.json'))['totals']['percent_covered_display'])")
+          export TOTAL=$(python -c "import json;print(json.load(open('tests/coverage.json'))['totals']['percent_covered_display'])")
           echo "total=$TOTAL" >> $GITHUB_ENV
           echo "### Total coverage: ${TOTAL}%" >> $GITHUB_STEP_SUMMARY
 
