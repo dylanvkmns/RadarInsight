@@ -1,7 +1,7 @@
 # SASS-C Radar Data Visualization Documentation
 ## Table of Contents
 
-1. [Overview](#Overview)
+1. [Overview](#1-overview)
 2. Features
 3. Installation
 4. Usage
