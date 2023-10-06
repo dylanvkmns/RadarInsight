@@ -2,15 +2,15 @@
 ## Table of Contents
 
 1. [Overview](#1-overview)
-2. Features
-3. Installation
-4. Usage
-5. Understanding the Queries
-6. Frequently Asked Questions (FAQs)
-7. Known Issues
-8. Contributing
-9. License
-10. Feedback and Support
+2. [Features](#2-features)
+3. [Installation](#3-installation)
+4. [Usage](#4-usage)
+5. [Understanding the Queries](#5-understanding-the-queries)
+6. [Frequently Asked Questions (FAQs)](#6-frequently-asked-questions-faqs)
+7. [Known Issues](#7-known-issues)
+8. [Contributing](#8-contributing)
+9. [License](#9-license)
+10. [Feedback and Support](#10-feedback-and-support)
 
 ## 1. Overview
 
@@ -42,7 +42,7 @@ Install the required packages:
 
 `pip install -r requirements.txt`
 
-4. Usage
+## 4. Usage
 
 Run migrations to set up the database:
 
