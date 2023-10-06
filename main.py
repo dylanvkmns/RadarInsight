@@ -2,7 +2,7 @@ import mysql.connector
 import sqlite3
 from datetime import datetime
 import configparser
-from utils import validate_date
+from app.utils import validate_date
 
 # Create a ConfigParser object and read the config file
 config = configparser.ConfigParser()
