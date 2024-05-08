@@ -158,14 +158,8 @@ def update_probability_figure(selected_radar):
     dates = [entry[-1] for entry in data]
 
     return {
-        'data': [
-            go.Scatter(x=dates,
-                       y=[entry[i + 2] for entry in data],
-                       mode=LINES_MARKERS,
-                       name=label) for i, label in enumerate(labels)
-        ],
-        'layout':
-            go.Layout(title=f"Probability for {selected_radar}")
+        'data': [go.Scatter(x=dates, y=[entry[i+2] for entry in data], mode='lines+markers', name=label) for i, label in enumerate(labels)],
+        'layout': go.Layout(title=f"Probability for {selected_radar}", yaxis=dict(range=[0, 100]))
     }
 
 
