@@ -1,0 +1,12 @@
+[package]
+name = "rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+mysql_async = "0.34.1"
+rusqlite = { version = "0.26.0", features = ["chrono"] }
+config = "0.12"
+chrono = { version = "0.4", features = ["serde"] }
+tokio = { version = "1", features = ["full"] }
+
