@@ -87,27 +87,25 @@ async fn handle_detection_rates(conn: &mut Conn, sqlite_conn: &Connection, datab
         ORDER BY d.DS_NAME;
     "#;
     
-    let detection_rate_results: Vec<(String, String, f64, f64, f64, f64, f64)> = 
+    let detection_rate_results: Vec<(Option<String>, Option<String>, Option<f64>, Option<f64>, Option<f64>, Option<f64>, Option<f64>)> = 
     conn.exec_map(detection_rate_query, (), |row| {
-        let (ds_name, ds_type, pdP, pdS, pdM, pdPS, pdPM): (String, Vec<u8>, Vec<u8>, Vec<u8>, Vec<u8>, Option<Vec<u8>>, Vec<u8>) = mysql_async::from_row(row);
-        let ds_type = String::from_utf8(ds_type).unwrap();
-        let pdP = String::from_utf8(pdP).unwrap().parse::<f64>().unwrap();
-        let pdS = String::from_utf8(pdS).unwrap().parse::<f64>().unwrap();
-        let pdM = String::from_utf8(pdM).unwrap().parse::<f64>().unwrap();
+        let (ds_name, ds_type, pdP, pdS, pdM, pdPS, pdPM): (Option<Vec<u8>>, Option<Vec<u8>>, Option<Vec<u8>>, Option<Vec<u8>>, Option<Vec<u8>>, Option<Vec<u8>>, Option<Vec<u8>>) = mysql_async::from_row(row);
+        let ds_name = ds_name.map(|v| String::from_utf8(v).unwrap());
+        let ds_type = ds_type.map(|v| String::from_utf8(v).unwrap());
+        let pdP = pdP.map(|v| String::from_utf8(v).unwrap().parse::<f64>().unwrap());
+        let pdS = pdS.map(|v| String::from_utf8(v).unwrap().parse::<f64>().unwrap());
+        let pdM = pdM.map(|v| String::from_utf8(v).unwrap().parse::<f64>().unwrap());
         let pdPS = pdPS.map(|v| String::from_utf8(v).unwrap().parse::<f64>().unwrap());
-        let pdPM = String::from_utf8(pdPM).unwrap().parse::<f64>().unwrap();
-        (ds_name, ds_type, pdP, pdS, pdM, pdPS.unwrap_or(0.0), pdPM)
+        let pdPM = pdPM.map(|v| String::from_utf8(v).unwrap().parse::<f64>().unwrap());
+        (ds_name, ds_type, pdP, pdS, pdM, pdPS, pdPM)
     }).await?;
-
+    
     for row in detection_rate_results {
         sqlite_conn.execute(
             "INSERT INTO detection_rates (ds_name, ds_type, pdP, pdS, pdM, pdPS, pdPM, Job_Date) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
             params![row.0, row.1, row.2, row.3, row.4, row.5, row.6, job_date_formatted],
         )?;
     }
-
-    Ok(())
-}
 
 fn setup_sqlite(conn: &Connection) -> rusqlite::Result<()> {
     conn.execute(
