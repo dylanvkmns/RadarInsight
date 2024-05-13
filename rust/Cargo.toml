@@ -1,12 +1,18 @@
 [package]
 name = "rust"
-version = "0.1.0"
+version = "1.7.0"
 edition = "2021"
 
-[dependencies]
-mysql_async = "0.34.1"
-rusqlite = { version = "0.26.0", features = ["chrono"] }
-config = "0.12"
-chrono = { version = "0.4", features = ["serde"] }
-tokio = { version = "1", features = ["full"] }
+[profile.release]
+lto = true
 
+[dependencies]
+tokio = { version = "1.37.0", features = ["full"] }
+mysql_async = "0.34.1"  # Check for the latest version suitable for your needs
+rusqlite = { version = "0.31.0", features = ["bundled"] }
+config = "0.14"
+chrono = { version = "0.4.38", features = ["serde"] }
+
+[dependencies.openssl]
+version = "0.10"
+features = ["vendored"]
