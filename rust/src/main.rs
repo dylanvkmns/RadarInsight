@@ -87,7 +87,12 @@ async fn handle_detection_rates(conn: &mut Conn, sqlite_conn: &Connection, datab
         ORDER BY d.DS_NAME;
     "#;
     
-    let detection_rate_results: Vec<(String, String, f64, f64, f64, f64, f64)> = conn.query(detection_rate_query).await?;
+    let detection_rate_results: Vec<(String, String, f64, f64, f64, f64, f64)> = 
+    conn.exec_map(detection_rate_query, (), |row| {
+        let (ds_name, ds_type, pdP, pdS, pdM, pdPS, pdPM): (String, Vec<u8>, f64, f64, f64, f64, f64) = mysql_async::from_row(row);
+        let ds_type = String::from_utf8(ds_type).unwrap();
+        (ds_name, ds_type, pdP, pdS, pdM, pdPS, pdPM)
+    }).await?;
 
     for row in detection_rate_results {
         sqlite_conn.execute(
