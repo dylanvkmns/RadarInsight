@@ -89,9 +89,14 @@ async fn handle_detection_rates(conn: &mut Conn, sqlite_conn: &Connection, datab
     
     let detection_rate_results: Vec<(String, String, f64, f64, f64, f64, f64)> = 
     conn.exec_map(detection_rate_query, (), |row| {
-        let (ds_name, ds_type, pdP, pdS, pdM, pdPS, pdPM): (String, Vec<u8>, f64, f64, f64, f64, f64) = mysql_async::from_row(row);
+        let (ds_name, ds_type, pdP, pdS, pdM, pdPS, pdPM): (String, Vec<u8>, Vec<u8>, Vec<u8>, Vec<u8>, Option<Vec<u8>>, Vec<u8>) = mysql_async::from_row(row);
         let ds_type = String::from_utf8(ds_type).unwrap();
-        (ds_name, ds_type, pdP, pdS, pdM, pdPS, pdPM)
+        let pdP = String::from_utf8(pdP).unwrap().parse::<f64>().unwrap();
+        let pdS = String::from_utf8(pdS).unwrap().parse::<f64>().unwrap();
+        let pdM = String::from_utf8(pdM).unwrap().parse::<f64>().unwrap();
+        let pdPS = pdPS.map(|v| String::from_utf8(v).unwrap().parse::<f64>().unwrap());
+        let pdPM = String::from_utf8(pdPM).unwrap().parse::<f64>().unwrap();
+        (ds_name, ds_type, pdP, pdS, pdM, pdPS.unwrap_or(0.0), pdPM)
     }).await?;
 
     for row in detection_rate_results {
