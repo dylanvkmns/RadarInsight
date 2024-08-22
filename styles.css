@@ -1,0 +1,51 @@
+body {
+    background-color: black; /* Dark background */
+    color: white; /* Light text for contrast */
+    font-family: 'Impact', sans-serif; /* Bold, impactful font */
+}
+
+h1 {
+    font-size: 4em; /* Even larger, attention-grabbing heading */
+    text-transform: uppercase; /* All caps for emphasis */
+    letter-spacing: 0.2em; /* Increased letter spacing */
+}
+
+.dcc_control {
+    margin-bottom: 30px; /* More spacing between controls */
+}
+
+.Select-control {
+    border: 2px solid white; /* Thick white border for dropdowns */
+    border-radius: 0; /* Sharp corners */
+}
+
+.Select-control:hover {
+    background-color: #f0f0f0; /* High-contrast hover effect */
+    color: black; 
+}
+
+.tab {
+    border: none; /* Remove default tab borders */
+    padding: 15px 20px; /* Increase padding for larger tabs */
+    font-size: 1.2em; /* Larger tab font */
+    text-transform: uppercase;
+    background-color: #333; /* Dark gray background for tabs */
+    color: white;
+}
+
+.tab--selected {
+    background-color: #f0f0f0; /* High-contrast selected tab */
+    color: black;
+}
+
+/* Example styling for graphs (adjust as needed) */
+.plotly .plot .trace {
+    opacity: 0.8; /* Slightly transparent lines */
+}
+
+.plotly .plot .scatterlayer .trace .marker {
+    size: 10; /* Larger markers */
+    line: {width: 2, color: 'white'}; /* Thick white marker outlines */
+}
+
+/* Add more specific styling for other components as needed */
