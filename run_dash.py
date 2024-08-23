@@ -1,21 +1,24 @@
-import dash
-import dash_core_components as dcc
-import plotly.express as px
-import dash_html_components as html
-from dash import dcc, html, Input, Output, State, callback, Patch, clientside_callback # Import State
+"""
+This Dash application visualizes and analyzes radar statistics data stored in an SQLite database.
+It provides interactive graphs and a report generation feature.
+"""
+
+import io
 import sqlite3
-import plotly.graph_objs as go
+
+import dash
+from dash import dcc, html, Input, Output, State
+from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib import colors
+
 import pandas as pd
-import io
-from reportlab.platypus import Paragraph
-from dash.exceptions import PreventUpdate
+import plotly.graph_objs as go
+
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import Paragraph, Spacer, Table, TableStyle, SimpleDocTemplate
 
 LINES_MARKERS = 'lines+markers'
 
@@ -34,13 +37,17 @@ conn.close()
 years = df['Job_Date'].unique()  # Assuming 'Job_Date' is your date column
 radars = df['ds_name'].unique()
 
+
 def get_all_radars():
-    conn = sqlite3.connect(DATA_DB)
-    cursor = conn.cursor()
+    """Fetches a list of unique radar names from the database."""
+    conn_radars = sqlite3.connect(DATA_DB)  # Use a different name here
+    cursor = conn_radars.cursor()
     cursor.execute("SELECT DISTINCT Radar_Name FROM biases")
     radars = cursor.fetchall()
-    conn.close()
+    conn_radars.close()
     return [{'label': radar[0], 'value': radar[0]} for radar in radars]
+
+
 
 def get_all_stats():
     return [
@@ -67,7 +74,7 @@ def get_all_stats():
         {
             'label': 'Range Bias',
             'value': 'Range_Bias'
-        }, 
+        },
         {
             'label': 'Azimuth Bias',
             'value': 'Azimuth_Bias'
@@ -79,11 +86,14 @@ def get_all_stats():
         # Add other biases as needed
     ]
 
+
 # Initialize Dash app
 dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
-app = dash.Dash(__name__, suppress_callback_exceptions=True, external_stylesheets=[dbc.themes.SPACELAB, dbc_css])
+# Theme is adjustable by changing dbc.themes.<themeName>, available themes are found here: https://hellodash.pythonanywhere.com/
+app = dash.Dash(__name__, suppress_callback_exceptions=True,
+                external_stylesheets=[dbc.themes.JOURNAL, dbc_css])
 app.title = "Radar Statistics"
-load_figure_template("lux")
+load_figure_template("journal")
 
 
 app.layout = dbc.Container(
@@ -94,7 +104,8 @@ app.layout = dbc.Container(
             id="tabs",
             active_tab='tab-1',  # Use active_tab instead of value
             children=[
-                dbc.Tab(label='Bias', tab_id='tab-1'),  # Use tab_id instead of value
+                # Use tab_id instead of value
+                dbc.Tab(label='Bias', tab_id='tab-1'),
                 dbc.Tab(label='Probability', tab_id='tab-2'),
                 dbc.Tab(label='Comparison', tab_id='tab-3'),
                 dbc.Tab(label='Overview', tab_id='tab-4'),
@@ -108,7 +119,8 @@ app.layout = dbc.Container(
 )
 
 
-@app.callback(Output('tabs-content', 'children'), [Input('tabs', 'active_tab')])  # Use active_tab
+# Use active_tab
+@app.callback(Output('tabs-content', 'children'), [Input('tabs', 'active_tab')])
 def render_content(tab):
     if tab == 'tab-1':
         return html.Div([
@@ -120,7 +132,7 @@ def render_content(tab):
         ])
     elif tab == 'tab-2':
         return html.Div([
-            dbc.Select(  
+            dbc.Select(
                 id='radar-dropdown-prob',
                 options=get_all_radars()
             ),
@@ -135,7 +147,7 @@ def render_content(tab):
             dcc.Graph(id='comparison-graph')
         ])
     elif tab == 'tab-4':
-        return html.Div(id='overview-content') 
+        return html.Div(id='overview-content')
     elif tab == 'tab-5':  # Content for the "Report" tab
         return html.Div([
             dcc.DatePickerRange(
@@ -145,56 +157,61 @@ def render_content(tab):
                 start_date=df['Job_Date'].min(),
                 end_date=df['Job_Date'].max()
             ),
-            dbc.Button("Generate Report", id='generate-report-button', color="primary", className="mt-3"),
+            dbc.Button("Generate Report", id='generate-report-button',
+                       color="primary", className="m-2"),
             dcc.Download(id="download-report")
         ])
 
 # Callbacks for graphs and other components
 
+
 @app.callback(Output('bias-graph', 'figure'),
               [Input('radar-dropdown', 'value')])
 def update_bias_figure(selected_radar):
-    conn = sqlite3.connect(DATA_DB)
-    cursor = conn.cursor()
+    conn_bias = sqlite3.connect(DATA_DB)  # Use a different name here
+    cursor = conn_bias.cursor()
     cursor.execute("SELECT * FROM biases WHERE Radar_Name=?", (selected_radar,))
     data = cursor.fetchall()
-    conn.close()
+    conn_bias.close()
 
     if not data:
         return go.Figure()
 
-    labels = [desc[0] for desc in cursor.description][2:-1]  
+    labels = [desc[0] for desc in cursor.description][2:-1]
     dates = [entry[-1] for entry in data]
 
     return {
         'data': [
             go.Scatter(x=dates,
-                      y=[entry[i + 2] for entry in data],
-                      mode=LINES_MARKERS,
-                      name=label) for i, label in enumerate(labels)
+                       y=[entry[i + 2] for entry in data],
+                       mode=LINES_MARKERS,
+                       name=label) for i, label in enumerate(labels)
         ],
         'layout': go.Layout(title=f"Bias for {selected_radar}")
     }
+
 
 @app.callback(Output('probability-graph', 'figure'),
               [Input('radar-dropdown-prob', 'value')])
 def update_probability_figure(selected_radar):
     conn = sqlite3.connect(DATA_DB)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM detection_rates WHERE ds_name=?", (selected_radar,))
+    cursor.execute(
+        "SELECT * FROM detection_rates WHERE ds_name=?", (selected_radar,))
     data = cursor.fetchall()
     conn.close()
 
     if not data:
         return go.Figure()
 
-    labels = [desc[0] for desc in cursor.description][2:-1]  
+    labels = [desc[0] for desc in cursor.description][2:-1]
     dates = [entry[-1] for entry in data]
 
     return {
         'data': [go.Scatter(x=dates, y=[entry[i+2] for entry in data], mode='lines+markers', name=label) for i, label in enumerate(labels)],
         'layout': go.Layout(title=f"Probability for {selected_radar}", yaxis=dict(range=[0, 100]))
     }
+
 
 @app.callback(Output('comparison-graph', 'figure'),
               [Input('stat-dropdown', 'value')])
@@ -214,13 +231,14 @@ def update_comparison_figure(selected_stat):
 
     # Modify the query to handle Job_Date as a DATE and ensure sorting
     cursor.execute(
-        f"SELECT {radar_column}, {selected_stat}, Job_Date FROM {table_name} ORDER BY Job_Date" 
+        f"SELECT {radar_column}, {selected_stat}, Job_Date FROM {
+            table_name} ORDER BY Job_Date"
     )
     data = cursor.fetchall()
     conn.close()
 
     radar_names = list(set([entry[0] for entry in data]))
-    
+
     # Initialize radar_data with None values for all dates
     dates = sorted(list({entry[-1] for entry in data}))
     radar_data = {radar: [None] * len(dates) for radar in radar_names}
@@ -234,13 +252,14 @@ def update_comparison_figure(selected_stat):
     return {
         'data': [
             go.Scatter(x=dates,
-                      y=radar_data[radar],
-                      mode=LINES_MARKERS,
-                      name=radar) for radar in radar_names
+                       y=radar_data[radar],
+                       mode=LINES_MARKERS,
+                       name=radar) for radar in radar_names
         ],
         'layout': go.Layout(title=f"Comparison for {selected_stat}")
 
     }
+
 
 @app.callback(Output('overview-content', 'children'), [Input('tabs', 'active_tab')])
 def update_overview_figure(tab):
@@ -254,7 +273,8 @@ def update_overview_figure(tab):
 
     radar_graphs = []
     for idx, radar in enumerate(radars):
-        cursor.execute("SELECT * FROM detection_rates WHERE ds_name=?", (radar,))
+        cursor.execute(
+            "SELECT * FROM detection_rates WHERE ds_name=?", (radar,))
         radar_data = cursor.fetchall()
 
         if radar_data:
@@ -272,7 +292,7 @@ def update_overview_figure(tab):
                           figure={
                               'data': traces,
                               'layout': go.Layout(title=f"{radar}'s Stats")
-                          }),
+                }),
                 style={
                     'width': '50%',
                     'display': 'inline-block'
@@ -288,11 +308,12 @@ def update_overview_figure(tab):
                              style={
                                  'width': '100%',
                                  'display': 'inline-block'
-                             })
+                    })
                 ]
 
     conn.close()
     return radar_graphs
+
 
 @app.callback(
     Output('download-report', 'data'),
@@ -305,8 +326,8 @@ def generate_report(n_clicks, start_date, end_date):
         raise PreventUpdate
 
     # Fetch data from the database based on the date range
-    conn = sqlite3.connect(DATA_DB)
-    cursor = conn.cursor()
+    conn_report = sqlite3.connect(DATA_DB)  # Use a different name here
+    cursor = conn_report.cursor()
     cursor.execute('''
         SELECT * FROM detection_rates 
         WHERE Job_Date BETWEEN ? AND ?
@@ -322,27 +343,29 @@ def generate_report(n_clicks, start_date, end_date):
     # Add title and other content
     styles = getSampleStyleSheet()
     elements.append(Paragraph("Radar Statistics Report", styles['h1']))
-    elements.append(Paragraph(f"Date Range: {start_date} to {end_date}", styles['Normal']))
+    elements.append(Paragraph(f"Date Range: {start_date} to {
+                    end_date}", styles['Normal']))
     elements.append(Spacer(1, 12))  # Add some space
 
     # Add table of data
     table_data = [cursor.description] + data
-    table_data = [[Paragraph(str(cell), styles['Normal']) for cell in row] for row in table_data]
+    table_data = [[Paragraph(str(cell), styles['Normal'])
+                   for cell in row] for row in table_data]
 
     table = Table(table_data)
     table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.grey),
-        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
-        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0,0), (-1,0), 12),
-        ('BACKGROUND', (0,1), (-1,-1), colors.beige),
-        ('GRID', (0,0), (-1,-1), 1, colors.black) 
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black)
 
     ]))
     elements.append(table)
 
-    doc.build(elements) 
+    doc.build(elements)
     # Return the PDF data for download
     buffer.seek(0)
     return dcc.send_bytes(buffer.getvalue(), 'radar_report.pdf')

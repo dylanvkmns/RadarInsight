@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 DATA_DB = "rqmData.db"
 
-def generate_fake_data(num_days=30):
+def generate_fake_data(num_days=300):
     conn = sqlite3.connect(DATA_DB)
     cursor = conn.cursor()
 
@@ -28,7 +28,6 @@ def generate_fake_data(num_days=30):
     cursor.execute('''
         CREATE TABLE detection_rates (
             ds_name TEXT,
-            ds_type INT,
             pdP REAL,
             pdS REAL,
             pdM REAL,
@@ -39,7 +38,7 @@ def generate_fake_data(num_days=30):
     ''')
 
     # Insert fake data
-    radars = ['Radar A', 'Radar B', 'Radar C']
+    radars = ['EBSZ', 'EBSH', 'EBBE', "EBFL", "EBLG", "EBOS"]
     antenna_types = ['Type 1', 'Type 2']
     start_date = datetime.now() - timedelta(days=num_days)
 
@@ -64,10 +63,9 @@ def generate_fake_data(num_days=30):
                 ))
 
                 cursor.execute('''
-                    INSERT INTO detection_rates VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO detection_rates VALUES (?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     radar,
-                    random.randint(1, 3),  # ds_type
                     random.uniform(80, 100),  # pdP
                     random.uniform(70, 90),  # pdS
                     random.uniform(60, 80),  # pdM
