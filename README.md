@@ -82,4 +82,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 For any feedback, queries, or issues related to the SASS-C Radar Data Visualization Tool, please contact the development team.
 
-Developed with ❤️ by Dylan Veekmans.
