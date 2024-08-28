@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 DATA_DB = "rqmData.db"
 
-def generate_fake_data(num_days=300):
+def generate_fake_data(num_days=3000):
     conn = sqlite3.connect(DATA_DB)
     cursor = conn.cursor()
 
